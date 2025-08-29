@@ -179,7 +179,7 @@ function showNotification(message, type = "info") {
 }
 
 // --- SERVER SYNC LOGIC ---
-async function fetchQuotesFromServer() {
+async function syncQuotes() {
   try {
     const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
     const data = await res.json();
@@ -275,6 +275,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- Periodic sync every 15s ---
   fetchQuotesFromServer();
-  setInterval(fetchQuotesFromServer, 15000);
+  setInterval(syncQuotes, 15000);
 });
-
