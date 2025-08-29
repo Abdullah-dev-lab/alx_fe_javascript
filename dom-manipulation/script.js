@@ -5,12 +5,24 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", category: "Success" },
 ];
 
+let selectedCategory = localStorage.getItem("selectedCategory") || "All"; 
+
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
+  populateCategoryFilter();
+}
+
+function saveSelectedCategory() {
+  localStorage.setItem("selectedCategory", selectedCategory);
 }
 
 function showRandomQuote() {
   const quoteContainer = document.getElementById("quoteContainer");
+
+  let filteredQuotes = selectedCategory === "All" 
+    ? quotes 
+    : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
+
   if (quotes.length === 0) {
     quoteContainer.innerHTML = "<p>No quotes available. Please add one!</p>";
     return;
@@ -133,6 +145,21 @@ function importQuotes(event) {
   reader.readAsText(file);
 }
 
+function populateCategoryFilter() {
+  const filterDropdown = document.getElementById("categoryFilter");
+  if (!filterDropdown) return;
+
+  const categories = ["All", ...new Set(quotes.map(q => q.category))];
+
+  filterDropdown.innerHTML = "";
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    if (cat === selectedCategory) option.selected = true;
+    filterDropdown.appendChild(option);
+  });
+}
 
 ocument.addEventListener("DOMContentLoaded", function () {
   const quoteContainer = document.getElementById("quoteContainer");
@@ -149,4 +176,6 @@ ocument.addEventListener("DOMContentLoaded", function () {
   } else {
     showRandomQuote();
   }
+
+  populateCategoryFilter();
 });
