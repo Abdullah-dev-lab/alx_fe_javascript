@@ -1,9 +1,13 @@
 
-let quotes = [
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
   { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", category: "Success" },
 ];
+
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
 
 function showRandomQuote() {
   const quoteContainer = document.getElementById("quoteContainer");
@@ -21,6 +25,8 @@ function showRandomQuote() {
       <footer>- ${quote.category}</footer>
     </blockquote>
   `;
+
+   sessionStorage.setItem("lastQuote", JSON.stringify(quote));
 }
 
 function createAddQuoteForm() {
@@ -59,6 +65,8 @@ function createAddQuoteForm() {
     if (newQuote.text && newQuote.category) {
       quotes.push(newQuote);
 
+      saveQuotes();
+
       const quoteContainer = document.getElementById("quoteContainer");
       quoteContainer.innerHTML = `
         <blockquote>
@@ -66,6 +74,8 @@ function createAddQuoteForm() {
           <footer>- ${newQuote.category}</footer>
         </blockquote>
       `;
+
+       sessionStorage.setItem("lastQuote", JSON.stringify(newQuote));
 
       alert("Quote added successfully!");
       form.reset();
@@ -77,6 +87,66 @@ function createAddQuoteForm() {
   formContainer.appendChild(form);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  showRandomQuote();
+function exportQuotes() {
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+   const a = document.createElement("a");
+  a.href = url;
+  a.download = "quotes.json";
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importQuotes(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const importedData = JSON.parse(e.target.result);
+
+      if (Array.isArray(importedData)) {
+        importedData.forEach(item => {
+          if (item.text && item.category) {
+            quotes.push(item);
+          }
+        });
+
+        saveQuotes();
+
+        alert("Quotes imported successfully!");
+        showRandomQuote();
+      } else {
+        alert("Invalid file format. Expected an array of quotes.");
+      }
+    } catch (err) {
+      alert("Error reading file: " + err.message);
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+
+ocument.addEventListener("DOMContentLoaded", function () {
+  const quoteContainer = document.getElementById("quoteContainer");
+
+  const lastQuote = sessionStorage.getItem("lastQuote");
+  if (lastQuote) {
+    const parsed = JSON.parse(lastQuote);
+    quoteContainer.innerHTML = `
+      <blockquote>
+        "${parsed.text}"
+        <footer>- ${parsed.category}</footer>
+      </blockquote>
+    `;
+  } else {
+    showRandomQuote();
+  }
 });
