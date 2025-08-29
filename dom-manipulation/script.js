@@ -9,17 +9,52 @@ let selectedCategory = localStorage.getItem("selectedCategory") || "All";
 
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
-  populateCategoryFilter();
 }
 
 function saveSelectedCategory() {
   localStorage.setItem("selectedCategory", selectedCategory);
 }
 
+function populateCategories() {
+  const filterDropdown = document.getElementById("categoryFilter");
+  if (!filterDropdown) return;
+
+  const categories = ["All", ...new Set(quotes.map(q => q.category))];
+
+  filterDropdown.innerHTML = "";
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    if (cat === selectedCategory) option.selected = true;
+    filterDropdown.appendChild(option);
+  });
+}
+
+function filterQuotes() {
+  const quoteContainer = document.getElementById("quoteContainer");
+
+  const filteredQuotes = selectedCategory === "All"
+    ? quotes
+    : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
+
+  if (filteredQuotes.length === 0) {
+    quoteContainer.innerHTML = `<p>No quotes available for "${selectedCategory}".</p>`;
+    return;
+  }
+
+  quoteContainer.innerHTML = filteredQuotes.map(q => `
+    <blockquote>
+      "${q.text}"
+      <footer>- ${q.category}</footer>
+    </blockquote>
+  `).join("");
+}
+
 function showRandomQuote() {
   const quoteContainer = document.getElementById("quoteContainer");
 
-  let filteredQuotes = selectedCategory === "All" 
+  const filteredQuotes = selectedCategory === "All" 
     ? quotes 
     : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
 
@@ -78,6 +113,8 @@ function createAddQuoteForm() {
       quotes.push(newQuote);
 
       saveQuotes();
+
+       populateCategories();
 
       const quoteContainer = document.getElementById("quoteContainer");
       quoteContainer.innerHTML = `
@@ -177,5 +214,5 @@ ocument.addEventListener("DOMContentLoaded", function () {
     showRandomQuote();
   }
 
-  populateCategoryFilter();
+  populateCategories();
 });
