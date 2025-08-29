@@ -35,7 +35,7 @@ function filterQuotes() {
   const quoteContainer = document.getElementById("quoteContainer");
 
   const filteredQuotes = selectedCategory === "All"
-    ? quotesDisplay
+    ? quoteDisplay
     : quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
 
   if (filteredQuotes.length === 0) {
