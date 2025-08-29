@@ -172,7 +172,7 @@ function importQuotes(event) {
 // --- NOTIFICATION UI ---
 function showNotification(message, type = "info") {
   const notif = document.getElementById("notification");
-  notif.textContent = message;
+  notif.textContent = "Quotes synced with server!";
   notif.className = type;
   notif.style.display = "block";
   setTimeout(() => { notif.style.display = "none"; }, 4000);
